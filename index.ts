@@ -56,10 +56,10 @@ const dexAgent = new Agent({
     apiKey: process.env.OPENSERV_API_KEY,
 });
 
-const formatToolName = (name) => {
-    // Replace dots with underscores to match the required pattern
+function formatToolName(name: string): string {
     return name.replace(/\./g, '_');
-};
+}
+
 
 async function main() {
     const dummyWalletClient = createWalletClient({
