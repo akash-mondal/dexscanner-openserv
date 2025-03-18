@@ -7,8 +7,7 @@ import { z } from 'zod';
 import { createWalletClient, http } from 'viem'; // Import viem functions
 import { mainnet } from 'viem/chains';
 import { viem } from '@goat-sdk/wallet-viem';
-// Import OpenAI (needed for intercepting the request)
-import OpenAI from 'openai';
+
 
 if (!process.env.OPENAI_API_KEY) {
     throw new Error('OPENAI_API_KEY is not set');
@@ -121,34 +120,6 @@ async function main() {
             ...Capability<z.ZodTypeAny>[]
         ]);
 
-        // --- INTERCEPTING AND LOGGING THE OPENAI REQUEST ---
-        const originalCreateChatCompletion = dexAgent.openai.chat.completions.create.bind(dexAgent.openai.chat.completions);
-
-        dexAgent.openai.chat.completions.create = async function (
-            ...args: Parameters<typeof originalCreateChatCompletion>
-        ): ReturnType<typeof originalCreateChatCompletion> {
-            const [body, ...rest] = args; // Extract the body (first argument)
-            if (body && 'tools' in body) {
-                console.log("--- OpenAI Request (Tools): ---");
-                console.log(JSON.stringify(body.tools, null, 2)); // Pretty-print the tools
-            }
-            // Call the original function with all arguments
-            return originalCreateChatCompletion(...args);
-        } as typeof originalCreateChatCompletion;
-            // --- TESTING CODE ---
-        const response = await dexAgent.process({
-            messages: [
-                {
-                    role: 'user',
-                    content: "What's the current price of CZR/SOL ",
-                },
-            ],
-        });
-        console.log("Agent Response:", response.choices[0].message.content);
-
-    } catch (error) {
-        console.error(error);
-    }
 }
 dexAgent.start()
 main();
