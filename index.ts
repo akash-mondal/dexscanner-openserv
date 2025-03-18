@@ -119,7 +119,16 @@ async function main() {
             Capability<z.ZodTypeAny>,
             ...Capability<z.ZodTypeAny>[]
         ]);
-
+        
+        // Start the agent after adding capabilities
+        await dexAgent.start();
+    } catch (error) {
+        console.error("Error setting up the agent:", error);
+    }
 }
-dexAgent.start()
-main();
+
+// Call the main function to start the application
+main().catch(error => {
+    console.error("Fatal error:", error);
+    process.exit(1);
+});
